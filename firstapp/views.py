@@ -61,25 +61,29 @@ def firstapi(request):
         }
     return Response(context)
 
-
+from .serializers import ContactSerializer
 
 # @api_view(['POST',])
 class ContactapiView(APIView):
     permission_classes=[AllowAny,]
     def post(self,request,format=None):
-        if request.method == 'POST':
-            name = request.data['name']
-            email = request.data['email']
-            phone = request.data['phone']
-            subject = request.data['subject']
-            details = request.data['details']
+        data = request.data
+        serializer = ContactSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
 
-            contact = Contact(name=name,email=email,phone=phone,subject=subject,details=details)
-            contact.save()
+        
+           
+         
 
             return Response({"success":"Successfully saved!"})
     def get(self,request,format=None):
-        return Response({"success":"Successfully saved! form GET"})
+        # queryset = Contact.objects.all()
+        queryset = Contact.objects.get(id=2)
+        # serializer = ContactSerializer(queryset, many=True) #For all data
+        serializer = ContactSerializer(queryset, many=False) #For single data
+        return Response(serializer.data)
         
         
 
