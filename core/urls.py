@@ -29,7 +29,7 @@ urlpatterns = [
     # path('api/api_login/token/',TokenObtainPairView.as_view()),
     path('api/api_login/token/refresh/',TokenRefreshView.as_view()),
     path('api-auth/', include('rest_framework.urls')),
-    path('api/firstapp/',include('firstapp.urls')),
+    path('api/',include('firstapp.urls')),
 
 ]
 urlpatterns+= static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
