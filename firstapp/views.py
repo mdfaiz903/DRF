@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from . models import Contact,BlogPost
 from rest_framework.views import APIView
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView,ListAPIView
 
 from .serializers import ContactSerializer,PostSerializer,PostDetailSerializer
 # Create your views here.
@@ -110,6 +110,12 @@ class PostCreateApiView(CreateAPIView):
         return Response(seria.data, status=status.HTTP_201_CREATED, headers=headers)
     
 
+
+
+class PostListApiView(ListAPIView):
+    permission_classes = [IsAuthenticated,]
+    queryset = BlogPost.objects.all()
+    serializer_class= PostDetailSerializer
 
         
 
