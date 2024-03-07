@@ -1,1 +1,5 @@
-//pip install djangorestframework_simplejwt
+#simple jwt
+```
+pip install djangorestframework_simplejwt
+
+```

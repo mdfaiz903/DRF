@@ -19,17 +19,19 @@ from django.urls import path,include
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
-
 from rest_framework.authtoken.views import obtain_auth_token
 from . views import MyTokenObtainPairView
+from  rest_framework.authentication import TokenAuthentication #For token Authentication
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('api/api_login/',obtain_auth_token),
-    path('api/api_login/token/',MyTokenObtainPairView.as_view()),
-    # path('api/api_login/token/',TokenObtainPairView.as_view()),
-    path('api/api_login/token/refresh/',TokenRefreshView.as_view()),
-    path('api-auth/', include('rest_framework.urls')),
-    path('api/',include('firstapp.urls')),
+    path('api/', include('rest_framework.urls')),
+    path('api/firstapp/',include('firstapp.urls')),
+
+    path('api/login-api/',obtain_auth_token), #For token Authentication
+    path('api/token/',MyTokenObtainPairView.as_view()),#For simple jwt Authentication
+    # path('api/token/',TokenObtainPairView.as_view()),#For simple jwt Authentication
+    path('api/token/refresh/',TokenRefreshView.as_view()),#For simple jwt Authentication
 
 ]
 urlpatterns+= static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

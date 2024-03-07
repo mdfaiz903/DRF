@@ -3,9 +3,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view,permission_classes
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated,AllowAny
-from . models import Contact
+from . models import Contact,BlogPost
 from rest_framework.views import APIView
+from rest_framework.generics import CreateAPIView
 
+from .serializers import ContactSerializer,PostSerializer,PostDetailSerializer
 # Create your views here.
 
 
@@ -42,7 +44,7 @@ def registraionAPI(request):
 
 
 @api_view(['GET','POST'])
-# @permission_classes([IsAuthenticated,])
+@permission_classes([IsAuthenticated,])
 def firstapi(request):
     if request.method == 'POST':
         name = request.POST['name']
@@ -61,7 +63,6 @@ def firstapi(request):
         }
     return Response(context)
 
-from .serializers import ContactSerializer
 
 # @api_view(['POST',])
 class ContactapiView(APIView):
@@ -85,6 +86,31 @@ class ContactapiView(APIView):
         serializer = ContactSerializer(queryset, many=False) #For single data
         return Response(serializer.data)
         
+
+
+from rest_framework import status 
+class PostCreateApiView(CreateAPIView):
+    permission_classes = [IsAuthenticated,]
+    queryset = BlogPost.objects.all()
+    serializer_class = PostSerializer
+
+    def perform_create(self, serializer):
+        return serializer.save(user = self.request.user)
+
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+
+        seria = PostDetailSerializer(instance=instance, many=False)
+        
+        return Response(seria.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+
+
         
 
 
