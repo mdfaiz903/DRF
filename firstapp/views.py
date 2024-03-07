@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from . models import Contact,BlogPost
 from rest_framework.views import APIView
-from rest_framework.generics import CreateAPIView,ListAPIView
+from rest_framework.generics import CreateAPIView,ListAPIView,ListCreateAPIView
 
 from .serializers import ContactSerializer,PostSerializer,PostDetailSerializer
 # Create your views here.
@@ -72,13 +72,10 @@ class ContactapiView(APIView):
         serializer = ContactSerializer(data = request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data,{"success":"Successfully saved!"})
 
         
-           
-         
-
-            return Response({"success":"Successfully saved!"})
+        # return Response()
     def get(self,request,format=None):
         # queryset = Contact.objects.all()
         queryset = Contact.objects.get(id=2)
@@ -89,7 +86,36 @@ class ContactapiView(APIView):
 
 
 from rest_framework import status 
-class PostCreateApiView(CreateAPIView):
+# class PostCreateApiView(CreateAPIView):
+#     permission_classes = [IsAuthenticated,]
+#     queryset = BlogPost.objects.all()
+#     serializer_class = PostSerializer
+
+#     def perform_create(self, serializer):
+#         return serializer.save(user = self.request.user)
+
+
+#     def create(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         instance = self.perform_create(serializer)
+#         headers = self.get_success_headers(serializer.data)
+
+
+#         seria = PostDetailSerializer(instance=instance, many=False)
+        
+#         return Response(seria.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+
+
+
+# class PostListApiView(ListAPIView):
+#     permission_classes = [IsAuthenticated,]
+#     queryset = BlogPost.objects.all()
+#     serializer_class= PostDetailSerializer
+
+        
+class PostCreateApiView(ListCreateAPIView):
     permission_classes = [IsAuthenticated,]
     queryset = BlogPost.objects.all()
     serializer_class = PostSerializer
@@ -108,16 +134,22 @@ class PostCreateApiView(CreateAPIView):
         seria = PostDetailSerializer(instance=instance, many=False)
         
         return Response(seria.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = PostDetailSerializer(queryset, many=True)
+        return Response(serializer.data)
     
-
-
-
-class PostListApiView(ListAPIView):
-    permission_classes = [IsAuthenticated,]
-    queryset = BlogPost.objects.all()
-    serializer_class= PostDetailSerializer
-
-        
+    #get_queryset customization
+    def get_queryset(self):
+        queryset = BlogPost.objects.filter(is_active=True)
+        return queryset
 
 
 
